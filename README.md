@@ -63,7 +63,8 @@ npx react-native run-android
 ## Project Structure
 
 ```
-src/
+├── android/
+├── ios/
 ├── components/
 │   ├── WeatherDisplay.tsx    # Main weather screen
 │   ├── LocationSearch.tsx    # City search interface
@@ -73,6 +74,7 @@ src/
 │   └── WeatherService.ts     # API calls and data processing
 └── types/
     └── index.ts              # TypeScript interfaces
+├── App.tsx
 ```
 
 ## Permissions Required
@@ -85,8 +87,12 @@ src/
 
 ### Android (android/app/src/main/AndroidManifest.xml)
 ```xml
+<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-<uses-permission android:name="android.permission.INTERNET" />
+
+<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+<uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+<uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
 ```
 
 ## What's Implemented
