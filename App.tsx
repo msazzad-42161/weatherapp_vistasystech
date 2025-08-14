@@ -14,7 +14,8 @@ import LoadingScreen from './components/LoadingScreen';
 import ErrorScreen from './components/ErrorScreen';
 import { WeatherService } from './services/WeatherService';
 import { WeatherData } from './types';
-import { SafeAreaProvider,SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { useThemeStore } from './stores/themeStore';
 
 const STORAGE_KEYS = {
   LAST_LOCATION: 'lastLocation',
@@ -26,9 +27,16 @@ const App: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showSearch, setShowSearch] = useState(false);
+  
+  const { theme, isDark, initializeTheme } = useThemeStore();
 
   useEffect(() => {
-    initializeApp();
+    // Initialize both theme and app
+    const initialize = async () => {
+      await initializeTheme();
+      await initializeApp();
+    };
+    initialize();
   }, []);
 
   const initializeApp = async () => {
@@ -84,19 +92,17 @@ const App: React.FC = () => {
       },
       (error) => {
         console.log('Location error:', error);
-        // Try to get last known position if available
         tryLastKnownPosition();
       },
       { 
-        enableHighAccuracy: false, // Set to false for faster response
-        timeout: 30000, // Increased to 30 seconds
-        maximumAge: 300000 // Accept cached location up to 5 minutes old
+        enableHighAccuracy: false,
+        timeout: 30000,
+        maximumAge: 300000
       }
     );
   };
   
   const tryLastKnownPosition = () => {
-    // Fallback: try to get position with lower accuracy
     Geolocation.getCurrentPosition(
       async (position) => {
         const { latitude, longitude } = position.coords;
@@ -113,8 +119,8 @@ const App: React.FC = () => {
       },
       { 
         enableHighAccuracy: false,
-        timeout: 60000, // Even longer timeout
-        maximumAge: 600000 // Accept cached location up to 10 minutes old
+        timeout: 60000,
+        maximumAge: 600000
       }
     );
   };
@@ -158,9 +164,37 @@ const App: React.FC = () => {
     setShowSearch(!showSearch);
   };
 
-  if (loading) {
-    return <LoadingScreen />;
-  }
+  const handleRefresh = async () => {
+    if (!weatherData) return;
+    
+    try {
+      // Get the last saved location or city to refresh with the same location
+      const savedLocation = await AsyncStorage.getItem(STORAGE_KEYS.LAST_LOCATION);
+      const savedCity = await AsyncStorage.getItem(STORAGE_KEYS.LAST_CITY);
+
+      if (savedLocation) {
+        const location = JSON.parse(savedLocation);
+        await fetchWeatherData(location.latitude, location.longitude);
+      } else if (savedCity) {
+        await handleCitySearch(savedCity);
+      } else {
+        // Fallback: try to get current location again
+        getCurrentLocation();
+      }
+    } catch (error) {
+      console.error('Refresh failed:', error);
+      setError('Failed to refresh weather data');
+    }
+  };
+
+  const containerStyle = [
+    styles.container,
+    { backgroundColor: theme.colors.background }
+  ];
+
+  // if (loading) {
+  //   return <LoadingScreen />;
+  // }
 
   if (error) {
     return (
@@ -183,21 +217,24 @@ const App: React.FC = () => {
 
   return (
     <SafeAreaProvider>
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
-      <WeatherDisplay
-        weatherData={weatherData}
-        onSearch={toggleSearch}
+      <SafeAreaView style={containerStyle}>
+        <StatusBar 
+          barStyle={isDark ? "light-content" : "dark-content"} 
+          backgroundColor={theme.colors.background} 
         />
-    </SafeAreaView>
-        </SafeAreaProvider>
+        <WeatherDisplay
+          weatherData={weatherData}
+          onSearch={toggleSearch}
+          onRefresh={handleRefresh}
+        />
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
   },
 });
 

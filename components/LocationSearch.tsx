@@ -10,6 +10,7 @@ import {
   Keyboard,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useThemeStore } from '../stores/themeStore';
 
 interface Props {
   onCitySelect: (cityName: string) => Promise<void>;
@@ -19,6 +20,7 @@ interface Props {
 const LocationSearch: React.FC<Props> = ({ onCitySelect, onCancel }) => {
   const [cityName, setCityName] = useState('');
   const [loading, setLoading] = useState(false);
+  const { theme } = useThemeStore();
 
   const handleSearch = async () => {
     const trimmedCity = cityName.trim();
@@ -56,12 +58,14 @@ const LocationSearch: React.FC<Props> = ({ onCitySelect, onCancel }) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <View style={styles.content}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.title}>🌍 Search Location</Text>
-          <Text style={styles.subtitle}>
+          <Text style={[styles.title, { color: theme.colors.text }]}>
+            🌍 Search Location
+          </Text>
+          <Text style={[styles.subtitle, { color: theme.colors.textSecondary }]}>
             Enter a city name to get weather information
           </Text>
         </View>
@@ -69,9 +73,13 @@ const LocationSearch: React.FC<Props> = ({ onCitySelect, onCancel }) => {
         {/* Search Input */}
         <View style={styles.searchContainer}>
           <TextInput
-            style={styles.searchInput}
+            style={[styles.searchInput, { 
+              backgroundColor: theme.colors.surface,
+              borderColor: theme.colors.border,
+              color: theme.colors.text,
+            }]}
             placeholder="Enter city name (e.g., Dhaka, London)"
-            placeholderTextColor="#666666"
+            placeholderTextColor={theme.colors.textMuted}
             value={cityName}
             onChangeText={setCityName}
             onKeyPress={handleKeyPress}
@@ -89,6 +97,7 @@ const LocationSearch: React.FC<Props> = ({ onCitySelect, onCancel }) => {
         <TouchableOpacity
           style={[
             styles.searchButton,
+            { backgroundColor: theme.colors.primary },
             loading && styles.searchButtonDisabled,
           ]}
           onPress={handleSearch}
@@ -106,35 +115,44 @@ const LocationSearch: React.FC<Props> = ({ onCitySelect, onCancel }) => {
         {/* Cancel Button */}
         {onCancel && (
           <TouchableOpacity
-            style={styles.cancelButton}
+            style={[styles.cancelButton, { borderColor: theme.colors.border }]}
             onPress={onCancel}
             disabled={loading}
             accessibilityLabel="Cancel search"
             accessibilityRole="button"
           >
-            <Text style={styles.cancelButtonText}>Cancel</Text>
+            <Text style={[styles.cancelButtonText, { color: theme.colors.textSecondary }]}>
+              Cancel
+            </Text>
           </TouchableOpacity>
         )}
 
         {/* Helper Text */}
         <View style={styles.helperContainer}>
-          <Text style={styles.helperTitle}>💡 Tips:</Text>
-          <Text style={styles.helperText}>
+          <Text style={[styles.helperTitle, { color: theme.colors.text }]}>
+            💡 Tips:
+          </Text>
+          <Text style={[styles.helperText, { color: theme.colors.textSecondary }]}>
             • Try major cities like "London", "New York", "Tokyo"
           </Text>
-          <Text style={styles.helperText}>
+          <Text style={[styles.helperText, { color: theme.colors.textSecondary }]}>
             • Include country for better results: "Paris, France"
           </Text>
-          <Text style={styles.helperText}>
+          <Text style={[styles.helperText, { color: theme.colors.textSecondary }]}>
             • Check your internet connection if search fails
           </Text>
         </View>
 
         {/* Permission Info */}
         {!onCancel && (
-          <View style={styles.permissionInfo}>
-            <Text style={styles.permissionTitle}>📍 Location Permission</Text>
-            <Text style={styles.permissionText}>
+          <View style={[styles.permissionInfo, { 
+            backgroundColor: theme.colors.surface,
+            borderLeftColor: theme.colors.primary,
+          }]}>
+            <Text style={[styles.permissionTitle, { color: theme.colors.text }]}>
+              📍 Location Permission
+            </Text>
+            <Text style={[styles.permissionText, { color: theme.colors.textSecondary }]}>
               Location permission was denied or unavailable. You can search for cities manually or 
               enable location permission in your device settings to automatically get weather for your current location.
             </Text>
@@ -148,7 +166,6 @@ const LocationSearch: React.FC<Props> = ({ onCitySelect, onCancel }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
   },
   content: {
     flex: 1,
@@ -162,13 +179,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#333333',
     marginBottom: 8,
     textAlign: 'center',
   },
   subtitle: {
     fontSize: 16,
-    color: '#666666',
     textAlign: 'center',
     lineHeight: 22,
   },
@@ -176,17 +191,13 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   searchInput: {
-    backgroundColor: '#f8f8f8',
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 16,
     fontSize: 16,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
-    color: '#333333',
   },
   searchButton: {
-    backgroundColor: '#007AFF',
     borderRadius: 12,
     paddingVertical: 16,
     alignItems: 'center',
@@ -198,7 +209,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
   },
   searchButtonDisabled: {
-    backgroundColor: '#cccccc',
+    opacity: 0.6,
     elevation: 0,
     shadowOpacity: 0,
   },
@@ -214,10 +225,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 30,
     borderWidth: 1,
-    borderColor: '#cccccc',
   },
   cancelButtonText: {
-    color: '#666666',
     fontSize: 16,
     fontWeight: '500',
   },
@@ -227,31 +236,25 @@ const styles = StyleSheet.create({
   helperTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333333',
     marginBottom: 12,
   },
   helperText: {
     fontSize: 14,
-    color: '#666666',
     lineHeight: 20,
     marginBottom: 4,
   },
   permissionInfo: {
-    backgroundColor: '#f0f7ff',
     borderRadius: 12,
     padding: 16,
     borderLeftWidth: 4,
-    borderLeftColor: '#007AFF',
   },
   permissionTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333333',
     marginBottom: 8,
   },
   permissionText: {
     fontSize: 14,
-    color: '#666666',
     lineHeight: 20,
   },
 });

@@ -6,6 +6,7 @@ import {
   StyleSheet,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useThemeStore } from '../stores/themeStore';
 
 interface Props {
   error: string;
@@ -14,22 +15,28 @@ interface Props {
 }
 
 const ErrorScreen: React.FC<Props> = ({ error, onRetry, onSearch }) => {
+  const { theme } = useThemeStore();
+
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <View style={styles.content}>
         {/* Error Icon */}
         <Text style={styles.errorIcon}>⚠️</Text>
 
         {/* Error Title */}
-        <Text style={styles.title}>Something Went Wrong</Text>
+        <Text style={[styles.title, { color: theme.colors.text }]}>
+          Something Went Wrong
+        </Text>
 
         {/* Error Message */}
-        <Text style={styles.errorMessage}>{error}</Text>
+        <Text style={[styles.errorMessage, { color: theme.colors.textSecondary }]}>
+          {error}
+        </Text>
 
         {/* Action Buttons */}
         <View style={styles.buttonsContainer}>
           <TouchableOpacity
-            style={styles.retryButton}
+            style={[styles.retryButton, { backgroundColor: theme.colors.primary }]}
             onPress={onRetry}
             accessibilityLabel="Retry loading weather"
             accessibilityRole="button"
@@ -38,19 +45,26 @@ const ErrorScreen: React.FC<Props> = ({ error, onRetry, onSearch }) => {
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={styles.searchButton}
+            style={[styles.searchButton, { borderColor: theme.colors.border }]}
             onPress={onSearch}
             accessibilityLabel="Search for a city manually"
             accessibilityRole="button"
           >
-            <Text style={styles.searchButtonText}>🔍 Search City Instead</Text>
+            <Text style={[styles.searchButtonText, { color: theme.colors.textSecondary }]}>
+              🔍 Search City Instead
+            </Text>
           </TouchableOpacity>
         </View>
 
         {/* Help Text */}
-        <View style={styles.helpContainer}>
-          <Text style={styles.helpTitle}>Need Help?</Text>
-          <Text style={styles.helpText}>
+        <View style={[styles.helpContainer, { 
+          backgroundColor: theme.colors.surface,
+          borderLeftColor: theme.colors.primary,
+        }]}>
+          <Text style={[styles.helpTitle, { color: theme.colors.text }]}>
+            Need Help?
+          </Text>
+          <Text style={[styles.helpText, { color: theme.colors.textSecondary }]}>
             If you continue having issues, make sure your device has internet access and location 
             services are enabled. You can also search for cities manually.
           </Text>
@@ -63,7 +77,6 @@ const ErrorScreen: React.FC<Props> = ({ error, onRetry, onSearch }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
   },
   content: {
     flex: 1,
@@ -78,13 +91,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#333333',
     textAlign: 'center',
     marginBottom: 12,
   },
   errorMessage: {
     fontSize: 16,
-    color: '#666666',
     textAlign: 'center',
     marginBottom: 32,
     lineHeight: 22,
@@ -95,7 +106,6 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   retryButton: {
-    backgroundColor: '#007AFF',
     borderRadius: 12,
     paddingVertical: 16,
     alignItems: 'center',
@@ -117,28 +127,24 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#cccccc',
   },
   searchButtonText: {
-    color: '#666666',
     fontSize: 16,
     fontWeight: '500',
   },
   helpContainer: {
-    backgroundColor: '#f8f9fa',
     borderRadius: 12,
     padding: 16,
     alignSelf: 'stretch',
+    borderLeftWidth: 4,
   },
   helpTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333333',
     marginBottom: 8,
   },
   helpText: {
     fontSize: 14,
-    color: '#666666',
     lineHeight: 20,
   },
 });

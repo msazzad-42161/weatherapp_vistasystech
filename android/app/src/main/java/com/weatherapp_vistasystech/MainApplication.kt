@@ -9,6 +9,8 @@ import com.facebook.react.ReactNativeHost
 import com.facebook.react.ReactPackage
 import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 import com.facebook.react.defaults.DefaultReactNativeHost
+import com.mkuczera.RNReactNativeHapticFeedbackPackage;
+
 
 class MainApplication : Application(), ReactApplication {
 
