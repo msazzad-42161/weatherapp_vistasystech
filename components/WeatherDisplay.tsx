@@ -26,7 +26,7 @@ interface HourlyItemProps {
 }
 const haptic_feedback_options = {
   enableVibrateFallback: true,
-  ignoreAndroidSystemSettings: false,
+  ignoreAndroidSystemSettings: true,
 };
 
 
